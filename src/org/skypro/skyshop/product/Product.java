@@ -1,25 +1,26 @@
 package org.skypro.skyshop.product;
 
 
-public class Product {
+public abstract class Product {
     private final String name;
-    private final int price;
 
-    public Product(String name, int price) {
+    public Product(String name) {
         this.name = name;
-        this.price = price;
     }
 
-    // Геттеры для получения данных
+    // Абстрактный метод получения цены
+    public abstract int getPrice();
+
+    // Метод определения "специального" товара (переопределяется в наследниках)
+    public boolean isSpecial() {
+        return false;
+    }
+
     public String getName() {
         return name;
     }
 
-    public int getPrice() {
-        return price;
-    }
-
-    public String toString() {
-        return name + ": " + price;
-    }
+    // Метод для строкового представления (разный в подклассах)
+    @Override
+    public abstract String toString();
 }
