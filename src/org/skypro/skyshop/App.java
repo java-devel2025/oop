@@ -9,40 +9,62 @@ import java.util.Arrays;
 public class App {
     public static void main(String[] args) {
 
-        // Создаем товары
+        // Демонстрация валидации
+        try {
+            Product badProduct = new SimpleProduct("   ", 100);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Ошибка: " + e.getMessage());
+        }
+
+        try {
+            Product badDiscount = new DiscountedProduct("Сыр", 200, 150);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Ошибка: " + e.getMessage());
+        }
+
+        try {
+            Product badPrice = new SimpleProduct("Хлеб", 0);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Ошибка: " + e.getMessage());
+        }
+
+        // Создаем корректные продукты
         Product apple = new SimpleProduct("Яблоко", 50);
-        Product bread = new SimpleProduct("Хлеб", 40);
         Product milk = new DiscountedProduct("Молоко", 100, 20);
         Product cheese = new DiscountedProduct("Сыр", 300, 10);
         Product subscription = new FixPriceProduct("Подписка SkyPro+");
 
         // Создаем статьи
-        Article article1 = new Article("Как выбрать сыр", "Советы по выбору качественного сыра в магазине.");
-        Article article2 = new Article("Польза молока", "Почему молоко — это источник кальция и витаминов.");
-        Article article3 = new Article("Лучшие яблоки", "Сравнение сортов яблок по вкусу и сладости.");
+        Article article1 = new Article("Как выбрать сыр", "Сыр бывает разных сортов, важно учитывать вкус и жирность.");
+        Article article2 = new Article("Польза молока", "Молоко полезно для костей и содержит кальций.");
 
-        // Создаем поисковый движок и добавляем всё в него
+        // Создаем поисковый движок
         SearchEngine engine = new SearchEngine(10);
         engine.add(apple);
-        engine.add(bread);
         engine.add(milk);
         engine.add(cheese);
         engine.add(subscription);
         engine.add(article1);
         engine.add(article2);
-        engine.add(article3);
 
-        // Демонстрация поиска
         System.out.println("\n=== Поиск по слову 'молоко' ===");
         System.out.println(Arrays.toString(engine.search("молоко")));
 
-        System.out.println("\n=== Поиск по слову 'сыр' ===");
-        System.out.println(Arrays.toString(engine.search("сыр")));
+        // Демонстрация нового метода поиска
+        System.out.println("\n=== Поиск самого подходящего результата ===");
+        try {
+            Searchable best = engine.findBestMatch("сыр");
+            System.out.println("Лучший результат: " + best.getStringRepresentation());
+        } catch (BestResultNotFound e) {
+            System.out.println(e.getMessage());
+        }
 
-        System.out.println("\n=== Поиск по слову 'яблок' ===");
-        System.out.println(Arrays.toString(engine.search("яблок")));
-
-        System.out.println("\n=== Поиск по слову 'подписка' ===");
-        System.out.println(Arrays.toString(engine.search("подписка")));
+        // Попробуем поиск по несуществующему слову
+        try {
+            Searchable best = engine.findBestMatch("йогурт");
+            System.out.println("Лучший результат: " + best.getStringRepresentation());
+        } catch (BestResultNotFound e) {
+            System.out.println("Ошибка: " + e.getMessage());
+        }
     }
 }
