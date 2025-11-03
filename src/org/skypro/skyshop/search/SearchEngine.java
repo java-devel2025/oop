@@ -1,61 +1,48 @@
 package org.skypro.skyshop.search;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class SearchEngine {
-    private final Searchable[] items;
-    private int currentIndex = 0;
+    private final List<Searchable> items = new ArrayList<>();
 
-    public SearchEngine(int capacity) {
-        this.items = new Searchable[capacity];
-    }
-
+    //Добавить объект для поиска
     public void add(Searchable searchable) {
-        if (currentIndex >= items.length) {
-            System.out.println("Невозможно добавить элемент — хранилище переполнено.");
-            return;
-        }
-        items[currentIndex++] = searchable;
+        items.add(searchable);
     }
 
-    public Searchable[] search(String query) {
-        Searchable[] results = new Searchable[5];
-        int found = 0;
-        query = query.toLowerCase();
+    //Найти все результаты, содержащие поисковую строку
+    public List<Searchable> search(String query) {
+        List<Searchable> results = new ArrayList<>();
+        if (query == null || query.isBlank()) return results;
 
+        String lower = query.toLowerCase();
         for (Searchable item : items) {
-            if (item == null) continue;
-
-            if (item.getSearchTerm().toLowerCase().contains(query)) {
-                results[found++] = item;
-                if (found == results.length) {
-                    break;
-                }
+            if (item.getSearchTerm().toLowerCase().contains(lower)) {
+                results.add(item);
             }
         }
         return results;
     }
 
+    //Найти лучший результат (из предыдущей домашки)
     public Searchable findBestMatch(String query) throws BestResultNotFound {
-        if (query == null || query.isBlank()) {
-            throw new BestResultNotFound("Пустой запрос");
-        }
-
-        Searchable bestMatch = null;
+        Searchable best = null;
         int maxOccurrences = 0;
 
         for (Searchable item : items) {
-            if (item == null) continue;
             int count = countOccurrences(item.getSearchTerm().toLowerCase(), query.toLowerCase());
             if (count > maxOccurrences) {
                 maxOccurrences = count;
-                bestMatch = item;
+                best = item;
             }
         }
 
-        if (bestMatch == null || maxOccurrences == 0) {
+        if (best == null) {
             throw new BestResultNotFound(query);
         }
 
-        return bestMatch;
+        return best;
     }
 
     private int countOccurrences(String text, String sub) {

@@ -1,67 +1,75 @@
 package org.skypro.skyshop;
 
 import org.skypro.skyshop.article.Article;
+import org.skypro.skyshop.basket.ProductBasket;
 import org.skypro.skyshop.product.*;
 import org.skypro.skyshop.search.*;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class App {
     public static void main(String[] args) {
 
-        // Демонстрация валидации
-        try {
-            Product badProduct = new SimpleProduct("   ", 100);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка: " + e.getMessage());
-        }
-
-        try {
-            Product badDiscount = new DiscountedProduct("Сыр", 200, 150);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка: " + e.getMessage());
-        }
-
-        try {
-            Product badPrice = new SimpleProduct("Хлеб", 0);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка: " + e.getMessage());
-        }
-
-        // Создаем корректные продукты
+        // === Создание продуктов ===
         Product apple = new SimpleProduct("Яблоко", 50);
         Product milk = new DiscountedProduct("Молоко", 100, 20);
         Product cheese = new DiscountedProduct("Сыр", 300, 10);
-        Product subscription = new FixPriceProduct("Подписка SkyPro+");
+        Product sub = new FixPriceProduct("Подписка SkyPro+");
 
-        // Создаем статьи
-        Article article1 = new Article("Как выбрать сыр", "Сыр бывает разных сортов, важно учитывать вкус и жирность.");
-        Article article2 = new Article("Польза молока", "Молоко полезно для костей и содержит кальций.");
+        // === Корзина ===
+        ProductBasket basket = new ProductBasket();
+        basket.addProduct(apple);
+        basket.addProduct(milk);
+        basket.addProduct(cheese);
+        basket.addProduct(sub);
+        basket.addProduct(new SimpleProduct("Яблоко", 60)); // второе яблоко
 
-        // Создаем поисковый движок
-        SearchEngine engine = new SearchEngine(10);
+        System.out.println("=== Содержимое корзины ===");
+        basket.printBasket();
+
+        // === Удаление продукта ===
+        System.out.println("\nУдаляем продукт 'Яблоко'...");
+        List<Product> removed = basket.removeProductsByName("Яблоко");
+        if (removed.isEmpty()) {
+            System.out.println("Список пуст");
+        } else {
+            System.out.println("Удалено:");
+            for (Product p : removed) {
+                System.out.println(p);
+            }
+        }
+
+        System.out.println("\nКорзина после удаления:");
+        basket.printBasket();
+
+        // === Удаление несуществующего продукта ===
+        System.out.println("\nУдаляем продукт 'Кофе'...");
+        List<Product> removed2 = basket.removeProductsByName("Кофе");
+        if (removed2.isEmpty()) {
+            System.out.println("Список пуст");
+        }
+
+        System.out.println("\nКорзина после второго удаления:");
+        basket.printBasket();
+
+        // === Поисковой движок ===
+        SearchEngine engine = new SearchEngine();
         engine.add(apple);
         engine.add(milk);
         engine.add(cheese);
-        engine.add(subscription);
-        engine.add(article1);
-        engine.add(article2);
+        engine.add(sub);
+        engine.add(new Article("Как выбрать сыр", "Сыр бывает разных сортов"));
+        engine.add(new Article("Польза молока", "Молоко полезно для костей"));
 
-        System.out.println("\n=== Поиск по слову 'молоко' ===");
-        System.out.println(Arrays.toString(engine.search("молоко")));
-
-        // Демонстрация нового метода поиска
-        System.out.println("\n=== Поиск самого подходящего результата ===");
-        try {
-            Searchable best = engine.findBestMatch("сыр");
-            System.out.println("Лучший результат: " + best.getStringRepresentation());
-        } catch (BestResultNotFound e) {
-            System.out.println(e.getMessage());
+        System.out.println("\n=== Поиск по строке 'сыр' ===");
+        List<Searchable> results = engine.search("сыр");
+        for (Searchable s : results) {
+            System.out.println(s.getStringRepresentation());
         }
 
-        // Попробуем поиск по несуществующему слову
+        System.out.println("\n=== Лучший результат по 'молоко' ===");
         try {
-            Searchable best = engine.findBestMatch("йогурт");
+            Searchable best = engine.findBestMatch("молоко");
             System.out.println("Лучший результат: " + best.getStringRepresentation());
         } catch (BestResultNotFound e) {
             System.out.println("Ошибка: " + e.getMessage());
