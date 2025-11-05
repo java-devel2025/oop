@@ -6,6 +6,7 @@ import org.skypro.skyshop.product.*;
 import org.skypro.skyshop.search.*;
 
 import java.util.List;
+import java.util.Map;
 
 public class App {
     public static void main(String[] args) {
@@ -42,16 +43,6 @@ public class App {
         System.out.println("\nКорзина после удаления:");
         basket.printBasket();
 
-        // === Удаление несуществующего продукта ===
-        System.out.println("\nУдаляем продукт 'Кофе'...");
-        List<Product> removed2 = basket.removeProductsByName("Кофе");
-        if (removed2.isEmpty()) {
-            System.out.println("Список пуст");
-        }
-
-        System.out.println("\nКорзина после второго удаления:");
-        basket.printBasket();
-
         // === Поисковой движок ===
         SearchEngine engine = new SearchEngine();
         engine.add(apple);
@@ -62,9 +53,9 @@ public class App {
         engine.add(new Article("Польза молока", "Молоко полезно для костей"));
 
         System.out.println("\n=== Поиск по строке 'сыр' ===");
-        List<Searchable> results = engine.search("сыр");
-        for (Searchable s : results) {
-            System.out.println(s.getStringRepresentation());
+        Map<String, Searchable> results = engine.search("сыр");
+        for (Map.Entry<String, Searchable> entry : results.entrySet()) {
+            System.out.println(entry.getKey() + " → " + entry.getValue().getStringRepresentation());
         }
 
         System.out.println("\n=== Лучший результат по 'молоко' ===");

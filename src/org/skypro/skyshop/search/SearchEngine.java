@@ -1,6 +1,5 @@
 package org.skypro.skyshop.search;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 public class SearchEngine {
@@ -12,14 +11,14 @@ public class SearchEngine {
     }
 
     //Найти все результаты, содержащие поисковую строку
-    public List<Searchable> search(String query) {
-        List<Searchable> results = new ArrayList<>();
+    public Map<String, Searchable> search(String query) {
+        Map<String, Searchable> results = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         if (query == null || query.isBlank()) return results;
 
         String lower = query.toLowerCase();
         for (Searchable item : items) {
             if (item.getSearchTerm().toLowerCase().contains(lower)) {
-                results.add(item);
+                results.put(item.getName(), item);
             }
         }
         return results;
