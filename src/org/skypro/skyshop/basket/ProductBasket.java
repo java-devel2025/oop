@@ -1,64 +1,64 @@
 package org.skypro.skyshop.basket;
 import org.skypro.skyshop.product.Product;
+import java.util.*;
 
 
 public class ProductBasket {
-    private final Product[] products = new Product[5];
+    private final Map<String, List<Product>> products = new HashMap<>();
 
-    // Метод добавления продукта
+    // Добавление продукта
     public void addProduct(Product product) {
-        for (int i = 0; i < products.length; i++) {
-            if (products[i] == null) {
-                products[i] = product;
-                System.out.println("Продукт \"" + product.getName() + "\" добавлен в корзину.");
-                return;
-            }
-        }
-        System.out.println("Невозможно добавить продукт: корзина заполнена.");
+        products.computeIfAbsent(product.getName(), k -> new ArrayList<>()).add(product);
     }
 
-    // Метод получения общей стоимости корзины
+    // Общая стоимость корзины
     public int getTotalPrice() {
         int total = 0;
-        for (Product product : products) {
-            if (product != null) {
-                total += product.getPrice();
+        for (List<Product> productList : products.values()) {
+            for (Product p : productList) {
+                total += p.getPrice();
             }
         }
         return total;
     }
 
-    // Метод печати содержимого корзины
+    // Печать содержимого корзины
     public void printBasket() {
-        boolean empty = true;
-        for (Product product : products) {
-            if (product != null) {
-                System.out.println(product);
-                empty = false;
+        if (products.isEmpty()) {
+            System.out.println("В корзине пусто");
+            return;
+        }
+
+        int total = 0;
+        int specialCount = 0;
+
+        for (Map.Entry<String, List<Product>> entry : products.entrySet()) {
+            for (Product p : entry.getValue()) {
+                System.out.println(p.toString());
+                total += p.getPrice();
+                if (p.isSpecial()) {
+                    specialCount++;
+                }
             }
         }
-        if (empty) {
-            System.out.println("В корзине пусто.");
-        } else {
-            System.out.println("Итого: " + getTotalPrice());
-        }
+
+        System.out.println("Итого: " + total);
+        System.out.println("Специальных товаров: " + specialCount);
     }
 
-    // Метод проверки продукта по имени
-    public boolean contains(String name) {
-        for (Product product : products) {
-            if (product != null && product.getName().equalsIgnoreCase(name)) {
-                return true;
-            }
-        }
-        return false;
+    // Проверка по имени
+    public boolean hasProduct(String name) {
+        return products.containsKey(name);
     }
 
-    // Метод очистки корзины
+    // Очистка корзины
     public void clearBasket() {
-        for (int i = 0; i < products.length; i++) {
-            products[i] = null;
-        }
-        System.out.println("Корзина очищена.");
+        products.clear();
+    }
+
+    // Удалить продукт(ы) по имени. Возвращает список удалённых товаров.
+    public List<Product> removeProductsByName(String name) {
+        List<Product> removed = products.remove(name);
+        return removed != null ? removed : Collections.emptyList();
     }
 }

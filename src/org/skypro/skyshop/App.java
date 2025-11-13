@@ -1,54 +1,47 @@
 package org.skypro.skyshop;
 
-import org.skypro.skyshop.product.Product;
-import org.skypro.skyshop.basket.ProductBasket;
+import org.skypro.skyshop.article.Article;
+import org.skypro.skyshop.product.*;
+import org.skypro.skyshop.search.*;
+
+import java.util.Set;
 
 public class App {
     public static void main(String[] args) {
+        SearchEngine engine = new SearchEngine();
 
-        // создаем несколько продуктов
-        Product apple = new Product("Яблоко", 50);
-        Product bread = new Product("Хлеб", 40);
-        Product milk = new Product("Молоко", 70);
-        Product cheese = new Product("Сыр", 120);
-        Product meat = new Product("Мясо", 300);
-        Product chocolate = new Product("Шоколад", 150);
+        // === Продукты ===
+        Product apple = new SimpleProduct("Яблоко", 50);
+        Product cheese = new DiscountedProduct("Сыр", 200, 15);
+        Product milk = new FixPriceProduct("Молоко");
 
-        // создаем корзину
-        ProductBasket basket = new ProductBasket();
+        // === Добавляем продукты ===
+        engine.add(apple);
+        engine.add(cheese);
+        engine.add(milk);
+        engine.add(apple); // ❌ дубликат — не добавится
 
-        // Добавление продукта в корзину
-        basket.addProduct(apple);
-        basket.addProduct(bread);
-        basket.addProduct(milk);
-        basket.addProduct(cheese);
-        basket.addProduct(meat);
+        // === Статьи ===
+        Article a1 = new Article("Польза молока", "Молоко полезно для костей");
+        Article a2 = new Article("Как выбрать сыр", "Советы при покупке сыра");
+        Article a3 = new Article("Молоко и кофе", "Сочетается ли молоко с кофе?");
+        engine.add(a1);
+        engine.add(a2);
+        engine.add(a3);
+        engine.add(a1); // ❌ дубликат — не добавится
 
-        // Добавление продукта в заполненную корзину
-        basket.addProduct(chocolate);
+        System.out.println("\n=== Поиск по слову 'молоко' ===");
+        Set<Searchable> results = engine.search("молоко");
+        for (Searchable s : results) {
+            System.out.println(s.getStringRepresentation());
+        }
 
-        // Печать содержимого корзины
-        basket.printBasket();
-
-        // Получение общей стоимости корзины
-        System.out.println("Общая стоимость корзины: " + basket.getTotalPrice());
-
-        // Поиск товара, который есть в корзине
-        System.out.println("Есть ли в корзине Хлеб? " + basket.contains("Хлеб"));
-
-        // Поиск товара, которого нет в корзине
-        System.out.println("Есть ли в корзине Шоколад? " + basket.contains("Шоколад"));
-
-        // Очистка корзины
-        basket.clearBasket();
-
-        // Печать пустой корзины
-        basket.printBasket();
-
-        // Стоимость пустой корзины
-        System.out.println("Стоимость пустой корзины: " + basket.getTotalPrice());
-
-        // Поиск товара в пустой корзине
-        System.out.println("Есть ли в корзине Яблоко? " + basket.contains("Яблоко"));
+        System.out.println("\n=== Лучший результат по 'сыр' ===");
+        try {
+            Searchable best = engine.findBestMatch("сыр");
+            System.out.println("Лучший результат: " + best.getStringRepresentation());
+        } catch (BestResultNotFound e) {
+            System.out.println("Ошибка: " + e.getMessage());
+        }
     }
 }
