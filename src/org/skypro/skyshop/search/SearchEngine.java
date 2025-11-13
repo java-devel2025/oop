@@ -3,28 +3,29 @@ import java.util.*;
 
 
 public class SearchEngine {
-    private final List<Searchable> items = new ArrayList<>();
+    // 🔹 теперь используем Set — убираем дубликаты
+    private final Set<Searchable> items = new HashSet<>();
 
-    //Добавить объект для поиска
     public void add(Searchable searchable) {
-        items.add(searchable);
+        items.add(searchable); // HashSet автоматически не добавит дубликат
     }
 
-    //Найти все результаты, содержащие поисковую строку
-    public Map<String, Searchable> search(String query) {
-        Map<String, Searchable> results = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        if (query == null || query.isBlank()) return results;
+    public Set<Searchable> search(String query) {
+        Set<Searchable> results = new TreeSet<>(new SearchableComparator());
+
+        if (query == null || query.isBlank()) {
+            return results;
+        }
 
         String lower = query.toLowerCase();
         for (Searchable item : items) {
             if (item.getSearchTerm().toLowerCase().contains(lower)) {
-                results.put(item.getName(), item);
+                results.add(item);
             }
         }
         return results;
     }
 
-    //Найти лучший результат (из предыдущей домашки)
     public Searchable findBestMatch(String query) throws BestResultNotFound {
         Searchable best = null;
         int maxOccurrences = 0;
@@ -40,7 +41,6 @@ public class SearchEngine {
         if (best == null) {
             throw new BestResultNotFound(query);
         }
-
         return best;
     }
 

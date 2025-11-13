@@ -1,14 +1,21 @@
 package org.skypro.skyshop.article;
 
 import org.skypro.skyshop.search.Searchable;
+import java.util.Objects;
 
 public class Article implements Searchable {
     private final String title;
     private final String text;
 
     public Article(String title, String text) {
-        this.title = title;
-        this.text = text;
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("Название статьи не может быть пустым или null");
+        }
+        if (text == null || text.isBlank()) {
+            throw new IllegalArgumentException("Текст статьи не может быть пустым или null");
+        }
+        this.title = title.trim();
+        this.text = text.trim();
     }
 
     public String getTitle() {
@@ -19,12 +26,6 @@ public class Article implements Searchable {
         return text;
     }
 
-    @Override
-    public String toString() {
-        return title + "\n" + text;
-    }
-
-    // Реализация интерфейса Searchable
     @Override
     public String getSearchTerm() {
         return title + " " + text;
@@ -38,5 +39,23 @@ public class Article implements Searchable {
     @Override
     public String getName() {
         return title;
+    }
+
+    @Override
+    public String getStringRepresentation() {
+        return title + " — " + getSearchType();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Article)) return false;
+        Article article = (Article) o;
+        return title.equalsIgnoreCase(article.title);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title.toLowerCase());
     }
 }
