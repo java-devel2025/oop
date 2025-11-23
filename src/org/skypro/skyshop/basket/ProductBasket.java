@@ -13,13 +13,10 @@ public class ProductBasket {
 
     // Общая стоимость корзины
     public int getTotalPrice() {
-        int total = 0;
-        for (List<Product> productList : products.values()) {
-            for (Product p : productList) {
-                total += p.getPrice();
-            }
-        }
-        return total;
+        return products.values().stream()               // Stream<List<Product>>
+                .flatMap(Collection::stream)            // Stream<Product>
+                .mapToInt(Product::getPrice)
+                .sum();
     }
 
     // Печать содержимого корзины
@@ -29,20 +26,21 @@ public class ProductBasket {
             return;
         }
 
-        int total = 0;
-        int specialCount = 0;
+        // Печать всех продуктов
+        products.values().stream()
+                .flatMap(Collection::stream)
+                .forEach(p -> System.out.println(p.toString()));
 
-        for (Map.Entry<String, List<Product>> entry : products.entrySet()) {
-            for (Product p : entry.getValue()) {
-                System.out.println(p.toString());
-                total += p.getPrice();
-                if (p.isSpecial()) {
-                    specialCount++;
-                }
-            }
-        }
+        // Подсчёт общей стоимости
+        int total = products.values().stream()
+                .flatMap(Collection::stream)
+                .mapToInt(Product::getPrice)
+                .sum();
 
-        System.out.println("Итого: " + total);
+        // Подсчёт специальных продуктов
+        long specialCount = getSpecialCount();
+
+        System.out.println("Общая стоимость: " + total);
         System.out.println("Специальных товаров: " + specialCount);
     }
 
@@ -60,5 +58,13 @@ public class ProductBasket {
     public List<Product> removeProductsByName(String name) {
         List<Product> removed = products.remove(name);
         return removed != null ? removed : Collections.emptyList();
+    }
+
+    // подсчёт спецтоваров
+    private long getSpecialCount() {
+        return products.values().stream()
+                .flatMap(Collection::stream)
+                .filter(Product::isSpecial)
+                .count();
     }
 }

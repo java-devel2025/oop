@@ -1,5 +1,6 @@
 package org.skypro.skyshop.search;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class SearchEngine {
@@ -10,21 +11,14 @@ public class SearchEngine {
         items.add(searchable); // HashSet автоматически не добавит дубликат
     }
 
-    public Set<Searchable> search(String query) {
-        Set<Searchable> results = new TreeSet<>(new SearchableComparator());
-
-        if (query == null || query.isBlank()) {
-            return results;
-        }
-
-        String lower = query.toLowerCase();
-        for (Searchable item : items) {
-            if (item.getSearchTerm().toLowerCase().contains(lower)) {
-                results.add(item);
-            }
-        }
-        return results;
+    public Set<Searchable> search(String search) {
+        return items.stream()
+                .filter(item -> item.getSearchTerm().contains(search))
+                .collect(Collectors.toCollection(
+                        () -> new TreeSet<>(new SearchableComparator())
+                ));
     }
+
 
     public Searchable findBestMatch(String query) throws BestResultNotFound {
         Searchable best = null;
